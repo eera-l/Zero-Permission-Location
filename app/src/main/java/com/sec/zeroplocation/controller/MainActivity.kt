@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.telephony.*
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -15,9 +16,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.sec.zeroplocation.R
 import com.sec.zeroplocation.model.CellInfo
 import java.lang.NullPointerException
+import com.sec.zeroplocation.model.APICommunicator
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
+
+    val TAG = MainActivity::class.java.simpleName
 
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -39,7 +44,15 @@ class MainActivity : AppCompatActivity() {
                 applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             val wifiInfo = wifiMgr.connectionInfo
             try {
-                txtBSSID.text = wifiInfo.bssid.toString()
+                //txtBSSID.text = wifiInfo.bssid.toString()
+                val apiCommunicator = APICommunicator()
+                var wifiBssid = wifiInfo.bssid.toString()
+                // Test BSSID
+                // wifiBssid = "00:0C:42:1F:65:E9"
+                wifiBssid = wifiBssid.replace(":", "").toUpperCase(Locale.ENGLISH).trim()
+                apiCommunicator.sendGET(wifiBssid) {response ->
+                    txtBSSID.text = "Latitude: ${response?.lat}, Longitude: ${response?.lon}"
+                }
             } catch (e: NullPointerException) {
                 Toast.makeText(this, "Please turn on the WiFi " +
                         "on your phone", Toast.LENGTH_LONG).show()
@@ -106,4 +119,5 @@ class MainActivity : AppCompatActivity() {
         }
         return wholeInfo
     }
+
 }
