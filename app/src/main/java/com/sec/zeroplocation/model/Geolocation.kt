@@ -1,7 +1,7 @@
 package com.sec.zeroplocation.model
 
-class Geolocation constructor(lat : Float, lon : Float) {
+class Geolocation constructor(lat : Double, lon : Double) {
 
-    var lat : Float = 0.0F
-    var lon : Float = 0.0F
+    var lat : Double = 0.0
+    var lon : Double = 0.0
 }

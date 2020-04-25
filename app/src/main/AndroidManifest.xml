@@ -1,25 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sec.zeroplocation">
-    <uses-permission android:name = "android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    package="com.sec.zeroplocation" >
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <application
+        android:name=".model.VolleySingleton"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar"
-        android:name="com.sec.zeroplocation.model.VolleySingleton">
-        <meta-data android:name="OnlineMaps.Key" android:value="WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu" />
-        <meta-data android:name="OnlineTraffic.Key" android:value="WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu" />
-        <meta-data android:name="OnlineSearch.Key" android:value="WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu" />
-        <meta-data android:name="OnlineRouting.Key" android:value="WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu" />
-        <meta-data android:name="GeofencingApi.Key" android:value="WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu" />
-        <activity android:name=".controller.MainActivity">
+        android:theme="@style/Theme.AppCompat.NoActionBar" >
+
+        <meta-data
+            android:name="OnlineMaps.Key"
+            android:value="WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu" />
+        <meta-data
+            android:name="OnlineTraffic.Key"
+            android:value="WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu" />
+        <meta-data
+            android:name="OnlineSearch.Key"
+            android:value="WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu" />
+        <meta-data
+            android:name="OnlineRouting.Key"
+            android:value="WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu" />
+        <meta-data
+            android:name="GeofencingApi.Key"
+            android:value="WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu" />
+
+        <activity android:name=".controller.MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

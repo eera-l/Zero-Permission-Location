@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015-2019 TomTom N.V. All rights reserved.
+  ~
+  ~ This software is the proprietary copyright of TomTom N.V. and its subsidiaries and may be used
+  ~ for internal evaluation purposes or commercial use strictly subject to separate licensee
+  ~ agreement between you and TomTom. If you are the licensee, you are only permitted to use
+  ~ this Software in accordance with the terms of your license agreement. If you are not the
+  ~ licensee then you are not authorised to use this software in any manner and should
+  ~ immediately return it to TomTom N.V.
+  -->
+
+<resources>
+
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="toolbar_height">54dp</dimen>
+    <dimen name="default_small_padding">8dp</dimen>
+    <dimen name="zero_dp">0dp</dimen>
+    <dimen name="standard_divider_size">1dp</dimen>
+
+    <dimen name="control_button_width">100dp</dimen>
+    <dimen name="control_button_height">36dp</dimen>
+    <dimen name="control_button_margin">1dp</dimen>
+
+    <dimen name="subtitle_font_size">18sp</dimen>
+    <dimen name="list_item_size">80dp</dimen>
+    <dimen name="list_item_distance_section_size">60dp</dimen>
+    <dimen name="list_item_primary_text_size">16sp</dimen>
+    <dimen name="list_item_secondary_text_size">12sp</dimen>
+    <dimen name="static_image_margin">1dp</dimen>
+
+    <dimen name="map_padding_vertical">100dp</dimen>
+    <dimen name="map_padding_horizontal">50dp</dimen>
+    <dimen name="custom_balloon_padding">25dp</dimen>
+    <dimen name="info_text_view_margin">65dp</dimen>
+
+    <dimen name="text_size_default">16sp</dimen>
+    <dimen name="text_size_medium">14sp</dimen>
+    <dimen name="text_size_small">10sp</dimen>
+
+    <dimen name="menu_item_height">300dp</dimen>
+    <dimen name="menu_item_icon">42dp</dimen>
+    <dimen name="menu_item_arrow">20dp</dimen>
+    <dimen name="menu_item_title_height">52dp</dimen>
+    <dimen name="menu_item_title_text">18sp</dimen>
+    <dimen name="menu_item_description_text">17sp</dimen>
+    <dimen name="menu_item_description_height">80dp</dimen>
+    <dimen name="menu_item_banner_height">200dp</dimen>
+
+    <dimen name="submenu_item_height">150dp</dimen>
+    <dimen name="submenu_item_banner_height">150dp</dimen>
+    <dimen name="submenu_title_container_height">52dp</dimen>
+    <dimen name="submenu_title_height">52dp</dimen>
+    <dimen name="submenu_item_title_text">18sp</dimen>
+    <dimen name="submenu_item_description_height">200dp</dimen>
+    <dimen name="submenu_item_description_text">16sp</dimen>
+    <dimen name="submenu_item_arrow_size">20dp</dimen>
+    <dimen name="submenu_item_title_margin">25dp</dimen>
+    <dimen name="submenu_item_description_margin">50dp</dimen>
+    <dimen name="small_text">10sp</dimen>
+
+    <dimen name="info_bar_height">55dp</dimen>
+    <dimen name="info_bar_height_search">35dp</dimen>
+    <dimen name="info_bar_subtitle_text">13sp</dimen>
+    <dimen name="info_bar_image_view_size">13dp</dimen>
+
+    <dimen name="compass_with_bar_margin_top">60dp</dimen>
+    <dimen name="compass_with_small_bar_margin_top">45dp</dimen>
+    <dimen name="compass_no_margin">0dp</dimen>
+
+    <dimen name="mini_map_size">150dp</dimen>
+    <dimen name="mini_map_border">2dp</dimen>
+    <dimen name="mini_map_margin">10dp</dimen>
+
+    <dimen name="bottom_guideline_height">35dp</dimen>
+
+    <dimen name="current_location_default_margin_start">10dp</dimen>
+    <dimen name="current_location_default_margin_bottom">25dp</dimen>
+    <dimen name="current_location_large_margin_bottom">70dp</dimen>
+    <dimen name="current_location_no_margin">0dp</dimen>
+
+    <dimen name="traffic_incident_item_size">50dp</dimen>
+    <dimen name="traffic_incident_view_padding">5dp</dimen>
+    <dimen name="traffic_incident_view_text_size">20sp</dimen>
+
+    <dimen name="poi_categories_search_container_height">44dp</dimen>
+</resources>
