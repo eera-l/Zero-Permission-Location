@@ -2,20 +2,18 @@ package com.sec.zeroplocation.controller
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.beust.klaxon.KlaxonException
 import com.sec.zeroplocation.R
 import com.sec.zeroplocation.model.APICommunicator
+import com.sec.zeroplocation.model.Address
 import com.sec.zeroplocation.model.CellInfo
 import com.tomtom.online.sdk.common.location.LatLng
 import com.tomtom.online.sdk.map.*
@@ -47,24 +45,30 @@ class MainActivity : AppCompatActivity() {
                 applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             val wifiInfo = wifiMgr.connectionInfo
             try {
-                val apiCommunicator = APICommunicator()
-                var wifiBssid = wifiInfo.bssid.toString()
-                // Test BSSID
-                wifiBssid = "00:0C:42:1F:65:E9"
-                wifiBssid = wifiBssid.trim()
+                Thread(Runnable {
+                    val apiCommunicator = APICommunicator()
+                    var wifiBssid = wifiInfo.bssid.toString()
+                    // Test BSSID
+                    wifiBssid = "00:0C:42:1F:65:E9"
+                    wifiBssid = wifiBssid.trim()
 
-               apiCommunicator.sendGET(wifiBssid, wifipath) { response ->
-                    if (response != null) {
-                        mapFragment.getAsyncMap { tomtomMap ->
-                            val position =
-                                LatLng(response!!.lat, response.lon)
-                            updateMap(position, tomtomMap)
+                    apiCommunicator.sendWiFiGET(wifiBssid, wifipath) { response ->
+                        if (response != null) {
+                            mapFragment.getAsyncMap { tomtomMap ->
+                                val position =
+                                    LatLng(response!!.lat, response.lon)
+                                val geol = "${response.lat},${response.lon}$geocode2"
+                                apiCommunicator.sendAddressGET(geol, geocode1) { response1 ->
+                                    val addressInfo = response1!!
+                                    updateMap(position, tomtomMap, addressInfo)
+                                }
+
+                            }
+                        } else {
+                            Toast.makeText(this, "Your WiFi BSSID " +
+                                    "was not found on the database", Toast.LENGTH_LONG).show()
                         }
-                    } else {
-                        Toast.makeText(this, "Your WiFi BSSID " +
-                                "was not found on the database", Toast.LENGTH_LONG).show()
-                    }
-                }
+                    } }).start()
             } catch (e: NullPointerException) {
                 Toast.makeText(this, "Please turn on the WiFi " +
                         "on your phone", Toast.LENGTH_LONG).show()
@@ -75,7 +79,7 @@ class MainActivity : AppCompatActivity() {
             mapFragment.getAsyncMap {tomtomMap ->
                 val position =
                     LatLng(55.22007181031, 36.5464590362)
-                updateMap(position, tomtomMap)
+                //updateMap(position, tomtomMap)
             }
             val regex =
                 "CellIdentityWcdma:\\{ mMcc=\\d{3} mMnc=\\d{1,4} mLac=\\d{1,12} mCid=\\d{1,15} mPsc=\\d{1,5}\\}".toRegex()
@@ -124,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         tomtomMap.markerSettings.markerBalloonViewAdapter = TextBalloonViewAdapter()
     }
 
-    private fun updateMap(position : LatLng, tomtomMap: TomtomMap) : TomtomMap {
+    private fun updateMap(position : LatLng, tomtomMap: TomtomMap, addressInfo: Address) : TomtomMap {
         if (!tomtomMap.markers.isEmpty()) {
             tomtomMap.removeMarkers()
         }
@@ -135,8 +139,11 @@ class MainActivity : AppCompatActivity() {
                 .bearing(0.0)
                 .build()
         )
+        val countryInfo = "${addressInfo.municipality}, " +
+                "${addressInfo.countrySubdivision}, " +
+                addressInfo.country
         val markerBuilder = MarkerBuilder(position)
-            .markerBalloon(SimpleMarkerBalloon(position.toString()))
+            .markerBalloon(SimpleMarkerBalloon(countryInfo))
         tomtomMap.addMarker(markerBuilder).select()
         return tomtomMap
     }

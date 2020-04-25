@@ -12,14 +12,14 @@ import com.sec.zeroplocation.model.Geolocation
 class APICommunicator {
     val TAG = APICommunicator::class.java.simpleName
     lateinit var geolocation: Geolocation
+    lateinit var addressInfo : Address
 
-    @Throws(KlaxonException::class)
-    public fun sendGET(params: String, basePath : String, completionHandler: (response:Geolocation?) -> Unit)  {
+    public fun sendWiFiGET(params: String, basePath : String, completionHandler: (response:Geolocation?) -> Unit)  {
         val requestQueue = VolleySingleton.instance?.requestQueue
         val jsonObjReq = object : JsonObjectRequest(Method.GET, basePath + params, null,
             Response.Listener<JSONObject> { response ->
                 Log.d(TAG, "GET request OK. Response: $response")
-                if (parseJSON(response)) completionHandler(geolocation)
+                if (parseWiFiJSON(response)) completionHandler(geolocation)
                 else completionHandler(null)
             },
             Response.ErrorListener { error ->
@@ -31,7 +31,24 @@ class APICommunicator {
         requestQueue?.add(jsonObjReq)
     }
 
-    private fun parseJSON(json : JSONObject) : Boolean {
+    public fun sendAddressGET(params: String, basePath : String, completionHandler: (response:Address?) -> Unit)  {
+        val requestQueue = VolleySingleton.instance?.requestQueue
+        val jsonObjReq = object : JsonObjectRequest(Method.GET, basePath + params, null,
+            Response.Listener<JSONObject> { response ->
+                Log.d(TAG, "GET request OK. Response: $response")
+                if (parseAddressJSON(response)) completionHandler(addressInfo)
+                else completionHandler(null)
+            },
+            Response.ErrorListener { error ->
+                Log.e(TAG, "GET request fail. Error: ${error.message}")
+                completionHandler(null)
+            }) {
+
+        }
+        requestQueue?.add(jsonObjReq)
+    }
+
+    private fun parseWiFiJSON(json : JSONObject) : Boolean {
         try {
             val message = Klaxon()
                 .parse<MessageResult>(json = json.toString())!!
@@ -39,6 +56,23 @@ class APICommunicator {
             return true
         } catch (e: KlaxonException) {
 
+        }
+        return false
+    }
+
+    private fun parseAddressJSON(json : JSONObject) : Boolean {
+        val regex = "\\\"address\\\"\\:(.*?)\\}\\}\\]*".toRegex()
+        var addresss =
+            regex.find(json.toString())?.groups?.first()?.value!!.substringAfter(':')
+        addresss = addresss.substringBefore("}]")
+        Log.d(TAG, "address: " + addresss)
+        try {
+            val address = Klaxon()
+                .parse<Address>(json = addresss)
+            this.addressInfo = address!!
+            return true
+        } catch (e: KlaxonException) {
+            e.printStackTrace()
         }
         return false
     }
