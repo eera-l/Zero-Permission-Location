@@ -1,8 +1,7 @@
 package com.sec.zeroplocation.model
 
-class Address constructor(municipality : String, country : String, countrySubdivision : String) {
+class Address constructor(freeformAddress : String, country : String) {
 
-    lateinit var municipality: String
+    lateinit var freeformAddress: String
     lateinit var country: String
-    lateinit var countrySubdivision: String
 }

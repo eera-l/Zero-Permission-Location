@@ -6,7 +6,6 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.telephony.TelephonyManager
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -15,22 +14,23 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.sec.zeroplocation.R
 import com.sec.zeroplocation.model.APICommunicator
-import com.sec.zeroplocation.model.Address
+import com.sec.zeroplocation.model.CSVreader
 import com.sec.zeroplocation.model.CellInfo
 import com.tomtom.online.sdk.common.location.LatLng
 import com.tomtom.online.sdk.map.*
 import com.tomtom.online.sdk.map.model.MapTilesType
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
 
-    val TAG = MainActivity::class.java.simpleName
     private lateinit var mapFragment: MapFragment
     private lateinit var tomtomMap: TomtomMap
     private lateinit var textInfo : TextView
     val wifipath = "https://api.mylnikov.org/geolocation/wifi?v=1.1&data=open&bssid="
     val geocode1 = "https://api.tomtom.com/search/2/reverseGeocode/"
     val geocode2 = ".JSON?key=WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu"
+    private lateinit var apiCommunicator: APICommunicator
 
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         textInfo = findViewById(R.id.txt_info)
         textInfo.visibility = View.INVISIBLE
-
+        apiCommunicator = APICommunicator()
         initMap()
 
         btnWifi.setOnClickListener {
@@ -52,10 +52,9 @@ class MainActivity : AppCompatActivity() {
             val wifiInfo = wifiMgr.connectionInfo
             try {
                 Thread(Runnable {
-                    val apiCommunicator = APICommunicator()
                     var wifiBssid = wifiInfo.bssid.toString()
                     // Test BSSID
-                    wifiBssid = "00:0C:42:1F:65:E9"
+                    // wifiBssid = "38:1C:1A:2F:47:D0"
                     wifiBssid = wifiBssid.trim()
 
                     apiCommunicator.sendWiFiGET(wifiBssid, wifipath) { response ->
@@ -65,16 +64,26 @@ class MainActivity : AppCompatActivity() {
                                     LatLng(response!!.lat, response.lon)
                                 val geol = "${response.lat},${response.lon}$geocode2"
                                 apiCommunicator.sendAddressGET(geol, geocode1) { response1 ->
-                                    val addressInfo = response1!!
-                                    updateMap(position, addressInfo)
+                                    lateinit var countryInfo : String
+                                    if (response1 != null) {
+                                        val addressInfo = response1!!
+                                        countryInfo = "${addressInfo.freeformAddress}, \n" +
+                                                addressInfo.country + ".\nLat: ${position.latitude}" +
+                                                "\nLon.: ${position.longitude}"
+
+                                    } else {
+                                        countryInfo = "Lat: ${position.latitude}" +
+                                                "\nLon.: ${position.longitude}"
+                                    }
+                                    updateMap(position, countryInfo)
                                     textInfo.visibility = View.VISIBLE
-                                    textInfo.text = "Your Access Point ID is located in: "
+                                    textInfo.text = "Your WiFi access point is located in: "
                                 }
 
                             }
                         } else {
                             Toast.makeText(this, "Your WiFi BSSID " +
-                                    "was not found on the database", Toast.LENGTH_LONG).show()
+                                    "could not be found on the database", Toast.LENGTH_LONG).show()
                         }
                     } }).start()
             } catch (e: NullPointerException) {
@@ -84,27 +93,59 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnCell.setOnClickListener {
-            mapFragment.getAsyncMap {tomtomMap ->
-                val position =
-                    LatLng(55.22007181031, 36.5464590362)
-                //updateMap(position, tomtomMap)
-            }
             val regex =
-                "CellIdentityWcdma:\\{ mMcc=\\d{3} mMnc=\\d{1,4} mLac=\\d{1,12} mCid=\\d{1,15} mPsc=\\d{1,5}\\}".toRegex()
+                "CellIdentity\\w{3,5}:\\{ mMcc=\\d{3} mMnc=\\d{1,4} mLac=\\d{1,12} mCid=\\d{1,15} mPsc=\\d{1,5}\\}".toRegex()
             val telephonyManager : TelephonyManager
-            val cellLocation :List<android.telephony.CellInfo>
             try {
                 telephonyManager =
                     getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
                 if (telephonyManager.allCellInfo != null) {
-                    cellLocation = telephonyManager.allCellInfo
-                    val cellInfo = cellLocation[0].toString()
-                    val wholeInfo = this@MainActivity.readRegex(cellInfo, regex)
-                        Log.d(TAG, "Mcc: ${wholeInfo.mcc}, " +
-                                         "Mnc: ${wholeInfo.mnc}, " +
-                                         "lac: ${wholeInfo.lac}, " +
-                                         "cid: ${wholeInfo.cid}")
+                    Thread(Runnable {
+                        val cellLocation = telephonyManager.allCellInfo
+                        val cellInfo = cellLocation[0].toString()
+                        val wholeInfo = this@MainActivity.readRegex(cellInfo, regex)
+                        val cReader = CSVreader()
+                        val file = File( assets.open("cell_got.csv").bufferedReader().use { it.readText() }).toString()
+                        val rows =
+                            cReader.readWithHeader(file)
+                        var idx = 0
+                        for (i in rows.indices) {
+                            if (rows[i]["mcc"] == wholeInfo.mcc &&
+                                    rows[i]["mnc"] == wholeInfo.mnc &&
+                                    rows[i]["lac"] == wholeInfo.lac &&
+                                    rows[i]["cellid"] == wholeInfo.cid) {
+                                idx = i
+                                break
+                            }
+                        }
+
+                        if (idx != -1) {
+                            val lat = rows[idx]["lat"]
+                            val lon = rows[idx]["lon"]
+                            val geol = "${lat},${lon}$geocode2"
+                            apiCommunicator.sendAddressGET(geol, geocode1) { response1 ->
+                                lateinit var countryInfo: String
+                                if (response1 != null) {
+                                    val addressInfo = response1!!
+                                    countryInfo = "${addressInfo.freeformAddress}, \n" +
+                                            addressInfo.country + ".\nLat: $lat" +
+                                            "\nLon.: $lon"
+
+                                } else {
+                                    countryInfo = "Lat: $lat" +
+                                            "\nLon.: $lon"
+                                }
+                                val position = LatLng(lat!!.toDouble(), lon!!.toDouble())
+                                updateMap(position, countryInfo)
+                                textInfo.visibility = View.VISIBLE
+                                textInfo.text = "Your cell tower is located in: "
+                            }
+                        } else {
+                            Toast.makeText(this, "Your cell tower ID " +
+                                    "could not be found on the database", Toast.LENGTH_LONG).show()
+                        }
+                    }).start()
                 } else {
                     Toast.makeText(this, "It looks like your phone " +
                             "does not have a SIM card", Toast.LENGTH_LONG).show()
@@ -152,12 +193,9 @@ class MainActivity : AppCompatActivity() {
         override fun onMapPanningEnded() {
             textInfo.visibility = View.INVISIBLE
         }
-
-
-
     }
 
-    private fun updateMap(position : LatLng, addressInfo: Address) : TomtomMap {
+    private fun updateMap(position : LatLng, countryInfo : String) : TomtomMap {
         if (!tomtomMap.markers.isEmpty()) {
             tomtomMap.removeMarkers()
         }
@@ -168,9 +206,7 @@ class MainActivity : AppCompatActivity() {
                 .bearing(0.0)
                 .build()
         )
-        val countryInfo = "${addressInfo.municipality}, " +
-                "${addressInfo.countrySubdivision}, " +
-                addressInfo.country + "\nLat: ${position.latitude}, Lon.: ${position.longitude}"
+
         val markerBuilder = MarkerBuilder(position)
             .markerBalloon(SimpleMarkerBalloon(countryInfo))
         tomtomMap.addMarker(markerBuilder).select()

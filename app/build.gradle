@@ -40,6 +40,7 @@ dependencies {
     implementation 'com.android.volley:volley:1.1.1'
     implementation 'com.beust:klaxon:5.0.1'
     implementation "androidx.multidex:multidex:2.0.1"
+    implementation "com.github.doyaaaaaken:kotlin-csv-jvm:0.7.3"
     //library required to display map
     implementation("com.tomtom.online:sdk-maps:2.4458")
     //library required for search
