@@ -7,7 +7,9 @@ import android.os.Build
 import android.os.Bundle
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     val TAG = MainActivity::class.java.simpleName
     private lateinit var mapFragment: MapFragment
     private lateinit var tomtomMap: TomtomMap
+    private lateinit var textInfo : TextView
     val wifipath = "https://api.mylnikov.org/geolocation/wifi?v=1.1&data=open&bssid="
     val geocode1 = "https://api.tomtom.com/search/2/reverseGeocode/"
     val geocode2 = ".JSON?key=WPtuRcLMvrphkNqHeYmHGo5SkK0YjLtu"
@@ -37,6 +40,9 @@ class MainActivity : AppCompatActivity() {
 
         val btnWifi = findViewById<Button>(R.id.btn_wifi)
         val btnCell = findViewById<Button>(R.id.btn_cell)
+
+        textInfo = findViewById(R.id.txt_info)
+        textInfo.visibility = View.INVISIBLE
 
         initMap()
 
@@ -60,7 +66,9 @@ class MainActivity : AppCompatActivity() {
                                 val geol = "${response.lat},${response.lon}$geocode2"
                                 apiCommunicator.sendAddressGET(geol, geocode1) { response1 ->
                                     val addressInfo = response1!!
-                                    updateMap(position, tomtomMap, addressInfo)
+                                    updateMap(position, addressInfo)
+                                    textInfo.visibility = View.VISIBLE
+                                    textInfo.text = "Your Access Point ID is located in: "
                                 }
 
                             }
@@ -114,6 +122,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val onMapReadyCallback = OnMapReadyCallback { tomtomMap ->
+        this.tomtomMap = tomtomMap
         val position =
             LatLng(10.22007181031, -16.5464590362)
         tomtomMap.uiSettings.currentLocationView.show()
@@ -126,22 +135,42 @@ class MainActivity : AppCompatActivity() {
                 .build()
         )
         tomtomMap.markerSettings.markerBalloonViewAdapter = TextBalloonViewAdapter()
+        tomtomMap.addOnMapPanningListener(removeTextInfoOnMapPanningListener)
     }
 
-    private fun updateMap(position : LatLng, tomtomMap: TomtomMap, addressInfo: Address) : TomtomMap {
+    private val removeTextInfoOnMapPanningListener: TomtomMapCallback.OnMapPanningListener = object : TomtomMapCallback.OnMapPanningListener {
+        override fun onMapPanningOngoing() {
+            textInfo.visibility = View.INVISIBLE
+        }
+
+        override fun onMapPanningStarted() {
+            textInfo.visibility = View.INVISIBLE
+            if (!tomtomMap.markers.isEmpty()) {
+                tomtomMap.removeMarkers()
+            }
+        }
+        override fun onMapPanningEnded() {
+            textInfo.visibility = View.INVISIBLE
+        }
+
+
+
+    }
+
+    private fun updateMap(position : LatLng, addressInfo: Address) : TomtomMap {
         if (!tomtomMap.markers.isEmpty()) {
             tomtomMap.removeMarkers()
         }
         tomtomMap.getUiSettings().setCameraPosition(
             CameraPosition
                 .builder(position)
-                .zoom(12.0)
+                .zoom(10.0)
                 .bearing(0.0)
                 .build()
         )
         val countryInfo = "${addressInfo.municipality}, " +
                 "${addressInfo.countrySubdivision}, " +
-                addressInfo.country
+                addressInfo.country + "\nLat: ${position.latitude}, Lon.: ${position.longitude}"
         val markerBuilder = MarkerBuilder(position)
             .markerBalloon(SimpleMarkerBalloon(countryInfo))
         tomtomMap.addMarker(markerBuilder).select()

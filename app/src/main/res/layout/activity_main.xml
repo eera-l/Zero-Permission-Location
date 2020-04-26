@@ -1,44 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".controller.MainActivity">
 
-    <FrameLayout
+    <fragment
+        android:id="@+id/map_fragment"
+        android:name="com.tomtom.online.sdk.map.MapFragment"
         android:layout_width="match_parent"
-        android:layout_height="500dp">
-
-        <fragment
-            android:id="@+id/map_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:name="com.tomtom.online.sdk.map.MapFragment" />
-
-
-    </FrameLayout>
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:layout_width="262dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="70dp"
-        android:layout_marginLeft="70dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btn_wifi"
-            android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:elevation="5dp">
+        <TextView
+            android:id="@+id/txt_info"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="70dp"
-            android:layout_marginRight="70dp"
-            android:text="WiFi BSSID" />
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:elevation="5dp"
+            android:textColor="#ff404040"
+            android:textSize="16sp"
+            android:background="@drawable/text_cloud"
+            android:shadowColor="#A8A8A8"/>
+    </LinearLayout>
 
-        <Button
-            android:id="@+id/btn_cell"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cell ID" />
-    </LinearLayout>
-    </LinearLayout>
+<LinearLayout
+    android:id="@+id/linear_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    android:layout_marginBottom="10dp"
+    android:layout_marginTop="500dp">
+    <Button
+        android:id="@+id/btn_wifi"
+        android:background="@drawable/selector_btn_custom_button"
+        android:textColor="@color/white_fully_opaque"
+        android:layout_width="85dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="62dp"
+        android:layout_marginLeft="62dp"
+        android:layout_marginEnd="70dp"
+        android:layout_marginRight="70dp"
+        android:elevation="5dp"
+        android:padding="1dp"
+        android:text="WiFi BSSID"/>
+
+    <Button
+        android:id="@+id/btn_cell"
+        android:background="@drawable/selector_btn_custom_button"
+        android:textColor="@color/white_fully_opaque"
+        android:layout_width="85dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="70dp"
+        android:layout_marginRight="70dp"
+        android:elevation="5dp"
+        android:padding="1dp"
+        android:text="Cell ID"/>
+</LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
