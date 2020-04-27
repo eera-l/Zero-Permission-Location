@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
                 Thread(Runnable {
                     var wifiBssid = wifiInfo.bssid.toString()
                     // Test BSSID
-                    // wifiBssid = "38:1C:1A:2F:47:D0"
+                    //wifiBssid = "38:1C:1A:2F:47:D0"
                     wifiBssid = wifiBssid.trim()
 
                     apiCommunicator.sendWiFiGET(wifiBssid, wifipath) { response ->
@@ -68,11 +68,11 @@ class MainActivity : AppCompatActivity() {
                                     if (response1 != null) {
                                         val addressInfo = response1!!
                                         countryInfo = "${addressInfo.freeformAddress}, \n" +
-                                                addressInfo.country + ".\nLat: ${position.latitude}" +
+                                                addressInfo.country + ".\nLat.: ${position.latitude}" +
                                                 "\nLon.: ${position.longitude}"
 
                                     } else {
-                                        countryInfo = "Lat: ${position.latitude}" +
+                                        countryInfo = "Lat.: ${position.latitude}" +
                                                 "\nLon.: ${position.longitude}"
                                     }
                                     updateMap(position, countryInfo)
@@ -100,52 +100,54 @@ class MainActivity : AppCompatActivity() {
                 telephonyManager =
                     getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
-                if (telephonyManager.allCellInfo != null) {
-                    Thread(Runnable {
-                        val cellLocation = telephonyManager.allCellInfo
-                        val cellInfo = cellLocation[0].toString()
-                        val wholeInfo = this@MainActivity.readRegex(cellInfo, regex)
-                        val cReader = CSVreader()
-                        val file = File( assets.open("cell_got.csv").bufferedReader().use { it.readText() }).toString()
-                        val rows =
-                            cReader.readWithHeader(file)
-                        var idx = 0
-                        for (i in rows.indices) {
-                            if (rows[i]["mcc"] == wholeInfo.mcc &&
-                                    rows[i]["mnc"] == wholeInfo.mnc &&
-                                    rows[i]["lac"] == wholeInfo.lac &&
-                                    rows[i]["cellid"] == wholeInfo.cid) {
-                                idx = i
-                                break
-                            }
+                if (telephonyManager.allCellInfo != null && telephonyManager.allCellInfo.size > 0) {
+                    val cellLocation = telephonyManager.allCellInfo
+                    val cellInfo = cellLocation[0].toString()
+                    val wholeInfo = this@MainActivity.readRegex(cellInfo, regex)
+                    val cReader = CSVreader()
+                    val file = File( assets.open("cell_got.csv").bufferedReader().use { it.readText() }).toString()
+                    val rows =
+                        cReader.readWithHeader(file)
+                    var idx = -1
+                    for (i in rows.indices) {
+                        if (rows[i]["mcc"] == wholeInfo.mcc &&
+                                rows[i]["mnc"] == wholeInfo.mnc &&
+                                rows[i]["lac"] == wholeInfo.lac &&
+                                rows[i]["cellid"] == wholeInfo.cid) {
+                            idx = i
+                            break
                         }
+                    }
 
-                        if (idx != -1) {
+                    if (idx != -1) {
+                        Thread(Runnable {
                             val lat = rows[idx]["lat"]
                             val lon = rows[idx]["lon"]
+//                            val lat = 59.3402375
+//                            val lon = 18.0300585
                             val geol = "${lat},${lon}$geocode2"
                             apiCommunicator.sendAddressGET(geol, geocode1) { response1 ->
                                 lateinit var countryInfo: String
                                 if (response1 != null) {
                                     val addressInfo = response1!!
                                     countryInfo = "${addressInfo.freeformAddress}, \n" +
-                                            addressInfo.country + ".\nLat: $lat" +
+                                            addressInfo.country + ".\nLat.: $lat" +
                                             "\nLon.: $lon"
 
                                 } else {
-                                    countryInfo = "Lat: $lat" +
+                                    countryInfo = "Lat.: $lat" +
                                             "\nLon.: $lon"
                                 }
                                 val position = LatLng(lat!!.toDouble(), lon!!.toDouble())
                                 updateMap(position, countryInfo)
                                 textInfo.visibility = View.VISIBLE
                                 textInfo.text = "Your cell tower is located in: "
-                            }
-                        } else {
-                            Toast.makeText(this, "Your cell tower ID " +
-                                    "could not be found on the database", Toast.LENGTH_LONG).show()
                         }
-                    }).start()
+                        }).start()
+                    } else {
+                        Toast.makeText(this, "Your cell tower ID " +
+                                "could not be found on the database", Toast.LENGTH_LONG).show()
+                    }
                 } else {
                     Toast.makeText(this, "It looks like your phone " +
                             "does not have a SIM card", Toast.LENGTH_LONG).show()

@@ -3,10 +3,11 @@ package com.sec.zeroplocation.model
 import android.util.Log
 import com.android.volley.*
 import com.android.volley.toolbox.JsonObjectRequest
-import com.beust.klaxon.Klaxon
-import com.beust.klaxon.KlaxonException
+import com.beust.klaxon.*
 import org.json.JSONObject
 import com.sec.zeroplocation.model.Geolocation
+import org.json.JSONArray
+import java.lang.NullPointerException
 
 //Partially readapted from: https://www.varvet.com/blog/kotlin-with-volley/
 class APICommunicator {
@@ -61,18 +62,16 @@ class APICommunicator {
     }
 
     private fun parseAddressJSON(json : JSONObject) : Boolean {
-        val regex = "\\\"address\\\"\\:(.*?)\\}\\}\\]*".toRegex()
-        var addresss =
-            regex.find(json.toString())?.groups?.first()?.value!!.substringAfter(':')
-        addresss = addresss.substringBefore("}]")
-        Log.d(TAG, "address: " + addresss)
+        val addresses : JSONArray? = json["addresses"] as JSONArray?
+        val addresss = addresses!![0] as JSONObject
+        val address = addresss["address"].toString()
         try {
             val address = Klaxon()
-                .parse<Address>(json = addresss)
+                .parse<Address>(json = address)
             this.addressInfo = address!!
             return true
         } catch (e: KlaxonException) {
-            e.printStackTrace()
+
         }
         return false
     }
