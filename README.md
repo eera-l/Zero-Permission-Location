@@ -5,7 +5,7 @@ This app demonstrates user geolocation via WiFi BSSID and cell tower ID. The GPS
 
 Geolocation via WiFi BSSID |  Geolocation via cell tower ID
 :-------------------------:|:-------------------------:
-<img src="https://www.webshare.hkr.se/FECO0002/got_wifi.jpg" alt="Geolocation via WiFi BSSID" height="500">  |  <img src="https://www.webshare.hkr.se/FECO0002/stockh_cell.jpg" alt="Geolocation via cell tower ID" height="500">
+<img src="https://www.webshare.hkr.se/FECO0002/got_wifi.jpg" alt="Geolocation via WiFi BSSID">  |  <img src="https://www.webshare.hkr.se/FECO0002/stockh_cell.jpg" alt="Geolocation via cell tower ID">
 
 Cell tower ID geolocation is only for demonstration purposes. I could not find an API for it, so it is based only on a small portion of the 7Gb open source CSV file hosted by Alexander Mylnikov: [Mobile Towers Geolocation data](https://www.mylnikov.org/download).
 
